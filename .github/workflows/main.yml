@@ -54,4 +54,8 @@ jobs:
         env:
           DEFAULT_BRANCH: "main"
           VALIDATE_ALL_CODEBASE: "false"
+          VALIDATE_YAML: "true"
+          VALIDATE_CSHARP: "true"
+          VALIDATE_JAVASCRIPT_ES: "true"
+          VALIDATE_TYPESCRIPT_ES: "true"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
