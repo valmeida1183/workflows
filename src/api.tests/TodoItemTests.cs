@@ -18,7 +18,7 @@ public class TodoItemTests
 		Assert.Equal(listId, todoItem.ListId);
 		Assert.Equal(name, todoItem.Name);
 		Assert.Equal("todo", todoItem.State);
-		Assert.True((DateTimeOffset.UtcNow - todoItem.CreatedDate.Value).TotalSeconds < 1);
+		Assert.True((DateTimeOffset.UtcNow - todoItem.CreatedDate!.Value).TotalSeconds < 1);
 	}
 
 	[Fact]
