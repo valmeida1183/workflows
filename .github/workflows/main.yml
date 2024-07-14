@@ -36,8 +36,6 @@ jobs:
         node-version: 20.x
         cache: npm
         cache-dependency-path: ./src/web
-
-    - run: cd ./src/web
     - run: npm ci
     - run: npm run build
       
