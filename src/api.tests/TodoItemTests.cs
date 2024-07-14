@@ -1,5 +1,3 @@
-using System;
-using Xunit;
 using SimpleTodo.Api;
 
 public class TodoItemTests
