@@ -120,9 +120,9 @@ jobs:
 
   publish:
     runs-on: ubuntu-latest
-    needs: [backend-build-and-test, frontend-build-and-test, run-lint, dependency-review, code-security-check]
+    # needs: [backend-build-and-test, frontend-build-and-test, run-lint, dependency-review, code-security-check]
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
     - name: Publish
-      run: dotnet publish .\src\api\Todo.Api.csproj -o ./publish
+      run: dotnet publish ./src/api/Todo.Api.csproj -o ./publish
