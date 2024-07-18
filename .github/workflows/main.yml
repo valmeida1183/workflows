@@ -37,7 +37,7 @@ jobs:
         # Use always() to always run this step to publish test results when there are test failures
       if: ${{ always() }} 
     - name: Publish
-      run: dotnet publish .\src\api\Todo.Api.csproj -o ./publish
+      run: dotnet publish ./src/api/Todo.Api.csproj -o ./publish
     - name: Upload dotnet artifacts
       uses: actions/upload-artifact@v4
       with:
