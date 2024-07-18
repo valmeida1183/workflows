@@ -1,0 +1,15 @@
+name: Release
+
+on:
+  workflow_run:
+    workflows: [Build]
+    types: [completed]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: api
