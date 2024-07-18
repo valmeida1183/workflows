@@ -1,0 +1,19 @@
+name: Release
+
+on:
+  workflow_run:
+    workflows: [Build]
+    types: [completed]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true    
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: api

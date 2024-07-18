@@ -1,0 +1,131 @@
+name: Build
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true    
+
+jobs:
+  backend-build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+        cache: true
+        cache-dependency-path: ./src/**/packages.lock.json
+    - name: Restore cache
+      run: dotnet restore ./src/Todo.Api.sln --locked-mode
+    - name: Restore packages
+      run: dotnet restore ./src/Todo.Api.sln
+    - name: Build
+      run: dotnet build ./src/Todo.Api.sln --no-restore --configuration Release
+    - name: Test
+      run: dotnet test ./src/Todo.Api.sln --no-restore --no-build --configuration Release --logger trx --results-directory "TestResults"
+    - name: Upload dotnet test results
+      uses: actions/upload-artifact@v4
+      with:
+        name: dotnet-test-results
+        path: TestResults
+        # Use always() to always run this step to publish test results when there are test failures
+      if: ${{ always() }} 
+    - name: Publish
+      run: dotnet publish ./src/api/Todo.Api.csproj -o ./publish
+    - name: Upload dotnet artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: api
+        path: ./publish
+
+  frontend-build-and-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./src/web
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 20.x
+        cache: npm
+        cache-dependency-path: ./src/web
+    - run: npm ci
+    - run: npm run lint
+    - run: npm run build
+    - uses: actions/upload-artifact@v4
+      with:
+        name: web
+        path: ./src/web/dist
+      
+  backend-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # super-linter needs the full git history to get the
+          # list of files that changed across commits
+          fetch-depth: 0
+
+      - name: Lint Code Base
+        uses: github/super-linter@v6
+        env:
+          DEFAULT_BRANCH: "main"
+          VALIDATE_ALL_CODEBASE: "false"
+          VALIDATE_YAML: "true"
+          VALIDATE_CSHARP: "true"
+          VALIDATE_JAVASCRIPT_ES: "true"
+          VALIDATE_TYPESCRIPT_ES: "true"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  dependency-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout repository'
+        uses: actions/checkout@v4
+      - name: 'Dependency Review'
+        uses: actions/dependency-review-action@v4        
+        with:
+          comment-summary-in-pr: always
+
+  code-security-check:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
+    timeout-minutes: ${{ (matrix.language == 'swift' && 120) || 360 }}
+    permissions:
+      security-events: write
+      packages: read
+      actions: read
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - language: csharp
+          build-mode: none
+        - language: javascript-typescript
+          build-mode: none
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+        build-mode: ${{ matrix.build-mode }}
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:${{matrix.language}}"
