@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Download build artifacts
-      uses: actions/download-artifact@v4
+      uses: dawidd6/action-download-artifact@v6
       with:
         name: api
+        workflow: Build
+        run_id: ${{ github.event.workflow_run.id }}
