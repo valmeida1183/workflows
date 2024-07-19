@@ -27,22 +27,24 @@ jobs:
       run: dotnet restore ./src/Todo.Api.sln
     - name: Build
       run: dotnet build ./src/Todo.Api.sln --no-restore --configuration Release
-    - name: Test
+    - name: Test      
       run: dotnet test ./src/Todo.Api.sln --no-restore --no-build --configuration Release --logger trx --results-directory "TestResults"
-    - name: Upload dotnet test results
+      if: github.ref != 'refs/heads/main'
+    - name: Upload dotnet test results      
       uses: actions/upload-artifact@v4
       with:
         name: dotnet-test-results
-        path: TestResults
-        # Use always() to always run this step to publish test results when there are test failures
-      if: ${{ always() }} 
+        path: TestResults        
+      if: github.ref != 'refs/heads/main'
     - name: Publish
-      run: dotnet publish ./src/api/Todo.Api.csproj -o ./publish
+      run: dotnet publish ./src/api/Todo.Api.csproj --no-restore --no-build --configuration Release --output ./publish
+      if: github.ref == 'refs/heads/main'
     - name: Upload dotnet artifacts
       uses: actions/upload-artifact@v4
       with:
         name: api
         path: ./publish
+      if: github.ref == 'refs/heads/main'
 
   frontend-build-and-test:
     runs-on: ubuntu-latest
@@ -65,6 +67,7 @@ jobs:
       with:
         name: web
         path: ./src/web/dist
+      if: github.ref == 'refs/heads/main'
       
   backend-lint:
     runs-on: ubuntu-latest
@@ -86,6 +89,7 @@ jobs:
           VALIDATE_JAVASCRIPT_ES: "true"
           VALIDATE_TYPESCRIPT_ES: "true"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    if: github.ref != 'refs/heads/main'
 
   dependency-review:
     runs-on: ubuntu-latest
@@ -98,6 +102,7 @@ jobs:
           comment-summary-in-pr: always
           base-ref: main
           head-ref: main
+    if: github.ref != 'refs/heads/main'
 
   code-security-check:
     name: Analyze (${{ matrix.language }})
@@ -131,3 +136,4 @@ jobs:
       uses: github/codeql-action/analyze@v3
       with:
         category: "/language:${{matrix.language}}"
+    if: github.ref != 'refs/heads/main'
