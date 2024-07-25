@@ -38,7 +38,7 @@ jobs:
           git tag -a ${{ steps.version.outputs.version }} -m "Release ${{ steps.version.outputs.version }}"          
 
       - name: Set Run Name
-        run: echo "::set-output name=run-name::Release ${{ steps.version.outputs.version }}"
+        run: echo "{run-name}={Release ${{ steps.version.outputs.version }}}" >> $GITHUB_STATE
 
   backend-build-and-test:
     needs: versioning
