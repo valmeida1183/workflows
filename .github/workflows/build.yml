@@ -28,12 +28,11 @@ jobs:
       
       - name: Use the version
         run: |
-          echo ${{ steps.version.outputs.version }}
-      - name: Use the previous version
-        run: |
-          echo ${{ steps.version.outputs.previous-version }}
+          git tag -a ${{ steps.version.outputs.version }} -m "Release ${{ steps.version.outputs.version }}"
+          echo "New release version ${{ steps.version.outputs.version }}"
 
   backend-build-and-test:
+    needs: versioning
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -67,6 +66,7 @@ jobs:
       if: github.ref == 'refs/heads/main'
 
   frontend-build-and-test:
+    needs: versioning
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -90,6 +90,7 @@ jobs:
       if: github.ref == 'refs/heads/main'
       
   backend-lint:
+    needs: versioning
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -112,6 +113,7 @@ jobs:
     if: github.ref != 'refs/heads/main'
 
   dependency-review:
+    needs: versioning
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout repository'
@@ -125,6 +127,7 @@ jobs:
     if: github.ref != 'refs/heads/main'
 
   code-security-check:
+    needs: versioning
     name: Analyze (${{ matrix.language }})
     runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
     timeout-minutes: ${{ (matrix.language == 'swift' && 120) || 360 }}
@@ -159,6 +162,7 @@ jobs:
     if: github.ref != 'refs/heads/main'    
 
   build-docker-image:
+    needs: versioning
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
