@@ -11,6 +11,26 @@ concurrency:
   cancel-in-progress: true    
 
 jobs:
+  versioning:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}   # checkout the correct branch name
+          fetch-depth: 0                # fetch the whole repo history
+
+      - name: Git Version
+        id: version
+        uses: codacy/git-version@2.8.0
+      
+      - name: Use the version
+        run: |
+          echo ${{ steps.version.outputs.version }}
+      - name: Use the previous version
+        run: |
+          echo ${{ steps.version.outputs.previous-version }}
+
   backend-build-and-test:
     runs-on: ubuntu-latest
     steps:
@@ -21,10 +41,8 @@ jobs:
         dotnet-version: 8.0.x
         cache: true
         cache-dependency-path: ./src/**/packages.lock.json
-    - name: Restore cache
-      run: dotnet restore ./src/Todo.Api.sln --locked-mode
     - name: Restore packages
-      run: dotnet restore ./src/Todo.Api.sln
+      run: dotnet restore ./src/Todo.Api.sln --locked-mode
     - name: Build
       run: dotnet build ./src/Todo.Api.sln --no-restore --configuration Release
     - name: Test      
@@ -42,7 +60,7 @@ jobs:
     - name: Upload dotnet artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: api
+        name: app/api
         path: ./publish
       if: github.ref == 'refs/heads/main'
 
@@ -65,7 +83,7 @@ jobs:
     - run: npm run build
     - uses: actions/upload-artifact@v4
       with:
-        name: web
+        name: app/web
         path: ./src/web/dist
       if: github.ref == 'refs/heads/main'
       
@@ -136,4 +154,18 @@ jobs:
       uses: github/codeql-action/analyze@v3
       with:
         category: "/language:${{matrix.language}}"
-    if: github.ref != 'refs/heads/main'
+    if: github.ref != 'refs/heads/main'    
+
+  build-docker-image:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: app
+        merge-multiple: false
+
+    

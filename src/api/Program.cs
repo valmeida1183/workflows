@@ -1,13 +1,10 @@
-using Azure.Identity;
 using Microsoft.EntityFrameworkCore;
 using SimpleTodo.Api;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
-//var credential = new DefaultAzureCredential();
-//builder.Configuration.AddAzureKeyVault(new Uri(builder.Configuration["AZURE_KEY_VAULT_ENDPOINT"]!), credential);
 
 builder.Services.AddScoped<ListsRepository>();
 builder.Services.AddDbContext<TodoDb>(options =>
@@ -39,7 +36,7 @@ app.UseCors(policy =>
 app.UseSwaggerUI(options =>
 {
     options.SwaggerEndpoint("./openapi.yaml", "v1");
-    options.RoutePrefix = "";
+    options.RoutePrefix = "api";
 });
 
 app.UseStaticFiles(new StaticFileOptions
