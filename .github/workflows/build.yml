@@ -17,15 +17,13 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4        
         with:
           ref: ${{ github.head_ref }} # checkout the correct branch name
           fetch-depth: 0 # fetch the whole repo history
 
-      - name: Git Version
-        id: version
-        uses: codacy/git-version@2.8.0
+      - uses: codacy/git-version@2.8.0
+        id: version        
         with:
           release-branch: main
           prefix: v
@@ -49,28 +47,33 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+
+      - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
           cache: true
           cache-dependency-path: ./src/**/packages.lock.json
+
       - name: Restore packages
         run: dotnet restore ./src/Todo.Api.sln --locked-mode
+
       - name: Build
         run: dotnet build ./src/Todo.Api.sln --no-restore --configuration Release
+
       - name: Test
         run: dotnet test ./src/Todo.Api.sln --no-restore --no-build --configuration Release --logger trx --results-directory "TestResults"
         if: github.ref != 'refs/heads/main'
-      - name: Upload dotnet test results
-        uses: actions/upload-artifact@v4
+
+      - uses: actions/upload-artifact@v4
         with:
           name: dotnet-test-results
           path: TestResults
         if: github.ref != 'refs/heads/main'
+
       - name: Publish
         run: dotnet publish ./src/api/Todo.Api.csproj --no-restore --no-build --configuration Release --output ./publish
         if: github.ref == 'refs/heads/main'
+
       - name: Upload dotnet artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -87,15 +90,19 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js
-        uses: actions/setup-node@v3
+
+      - uses: actions/setup-node@v4
         with:
           node-version: 20.x
           cache: npm
           cache-dependency-path: ./src/web
-      - run: npm ci
-      - run: npm run lint
-      - run: npm run build
+
+      - name: Build and Test
+        run: |
+          npm ci
+          npm run lint
+          npm run build
+
       - uses: actions/upload-artifact@v4
         with:
           name: web
@@ -106,15 +113,13 @@ jobs:
     needs: versioning
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           # super-linter needs the full git history to get the
           # list of files that changed across commits
           fetch-depth: 0
 
-      - name: Lint Code Base
-        uses: github/super-linter@v6
+      - uses: github/super-linter@v6
         env:
           DEFAULT_BRANCH: "main"
           VALIDATE_ALL_CODEBASE: "false"
@@ -129,10 +134,9 @@ jobs:
     needs: versioning
     runs-on: ubuntu-latest
     steps:
-      - name: "Checkout repository"
-        uses: actions/checkout@v4
-      - name: "Dependency Review"
-        uses: actions/dependency-review-action@v4
+      - uses: actions/checkout@v4
+
+      - uses: actions/dependency-review-action@v4
         with:
           comment-summary-in-pr: always
           base-ref: main
@@ -159,17 +163,14 @@ jobs:
           - language: javascript-typescript
             build-mode: none
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+      - uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
 
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+      - uses: github/codeql-action/analyze@v3
         with:
           category: "/language:${{matrix.language}}"
     if: github.ref != 'refs/heads/main'
@@ -178,11 +179,9 @@ jobs:
     needs: versioning
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
           path: app
           merge-multiple: false
