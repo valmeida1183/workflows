@@ -60,7 +60,7 @@ jobs:
     - name: Upload dotnet artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: app/api
+        name: api
         path: ./publish
       if: github.ref == 'refs/heads/main'
 
@@ -83,7 +83,7 @@ jobs:
     - run: npm run build
     - uses: actions/upload-artifact@v4
       with:
-        name: app/web
+        name: web
         path: ./src/web/dist
       if: github.ref == 'refs/heads/main'
       
