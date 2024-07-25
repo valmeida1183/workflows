@@ -37,9 +37,7 @@ jobs:
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git config --global user.name "${{ github.actor }}"
           git tag -a ${{ steps.version.outputs.version }} -m "Release ${{ steps.version.outputs.version }}"
-
-      - name: Set Run Name
-        run: echo "run-name='Release ${{ steps.version.outputs.version }}'" >> $GITHUB_OUTPUT
+          git push --tags
 
   backend-build-and-test:
     needs: versioning
