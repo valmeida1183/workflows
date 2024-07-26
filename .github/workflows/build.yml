@@ -177,7 +177,7 @@ jobs:
     if: github.ref != 'refs/heads/main'
 
   build-docker-image:
-    needs: versioning
+    needs: [versioning, backend-build-and-test, frontend-build-and-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
