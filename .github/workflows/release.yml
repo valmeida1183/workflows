@@ -35,4 +35,4 @@ jobs:
       with:        
         app-name: ${{ env.WEBAPP_NAME }}
         publish-profile: ${{ env.PUBLISH_PROFILE }}
-        images: 'ghcr.io/${{ github.repository }}:${{ github.event.workflow_run. }}'
+        images: 'ghcr.io/${{ github.repository }}:${{ inputs.version }}'
