@@ -183,13 +183,13 @@ jobs:
       - name: Download API artifact
         uses: actions/download-artifact@v4
         with:
-          name: api-artifact
+          name: api
           path: app/api
 
       - name: Download Web artifact
         uses: actions/download-artifact@v4
         with:
-          name: web-artifact
+          name: web
           path: app/web
 
       - uses: docker/login-action@v3
