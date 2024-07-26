@@ -198,6 +198,4 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Run Docker push
-        run: |
-          docker push ${{ github.repository }}:${{ env.version }}
-          docker push ${{ github.repository }}:latest
+        run: docker push --all-tags ${{ github.repository }}
