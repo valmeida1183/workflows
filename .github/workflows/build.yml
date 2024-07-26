@@ -180,26 +180,24 @@ jobs:
     env:
       version: ${{ needs.versioning.outputs.version }}
     steps:
-      - name: Download API artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: api
-          path: ./app
+      - uses: actions/checkout@v4
 
-      - name: Download Web artifact
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
-          name: web
-          path: ./app
+          path: app
+          merge-multiple: false
+
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ github.repository }}:${{ env.version }} .
+          docker tag ${{ github.repository }}:${{ env.version }} ${{ github.repository }}:latest
 
       - uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - uses: docker/build-push-action@v6
-        with:
-          push: true
-          tags: |
-            ${{ github.repository }}:${{ env.version }}
-            ${{ github.repository }}:latest
+      - name: Run Docker push
+        run: |
+          docker push ${{ github.repository }}:${{ env.version }}
+          docker push ${{ github.repository }}:latest
