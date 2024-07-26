@@ -15,6 +15,8 @@ concurrency:
 jobs:
   versioning:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     permissions:
       contents: write
     steps:
@@ -28,10 +30,6 @@ jobs:
         with:
           release-branch: main
           prefix: v
-
-      - name: Share the version
-        run: |
-          echo "NEW_VERSION=${{ steps.version.outputs.version }}" >> $GITHUB_ENV
 
       - name: Tag the repository        
         env:
@@ -189,7 +187,7 @@ jobs:
 
       - name: Build Docker image
         env:
-          NEW_VERSION: ${{ steps.version.outputs.version }}
+          version: ${{ needs.versioning.outputs.version }}
         run: |
-          docker build -t ${{ github.repository }}:${{ env.NEW_VERSION }} app
-          docker tag ${{ github.repository }}:${{ env.NEW_VERSION }} ${{ github.repository }}:latest
+          docker build -t ${{ github.repository }}:${{ env.version }} app
+          docker tag ${{ github.repository }}:${{ env.version }} ${{ github.repository }}:latest
