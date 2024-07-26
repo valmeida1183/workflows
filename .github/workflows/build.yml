@@ -1,4 +1,4 @@
-name: Build
+name: build
 run-name: Building ${{ github.repository }} by ${{ github.actor }}
 
 on:

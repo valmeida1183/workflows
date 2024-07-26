@@ -1,23 +1,38 @@
-name: Release
+name: release
 run-name: Releasing ${{ github.repository }} by ${{ github.actor }}
 
-on:
-  workflow_dispatch:
-  workflow_run:
-    workflows: [Build]
-    types: [completed]
+on:  
+  workflow_call:
+    inputs:
+      version: 
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true    
 
 jobs:
-  release:
+  release-production:    
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment}}
+    env:
+      WEBAPP_NAME: ${{ vars.AZURE_WEBAPP_NAME }}
+      PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
     steps:
-    - name: Download build artifacts
-      uses: dawidd6/action-download-artifact@v6
-      with:
-        path: app
-        workflow: Build
-        run_id: ${{ github.event.workflow_run.id }}
+    - name: Validate environment input
+      run: |
+        if [[ "${{ inputs.environment }}" != "production" && "${{ inputs.environment }}" != "staging" ]]; then
+          echo "Invalid environment: ${{ inputs.environment }}. Allowed values are 'production' or 'staging'."
+          exit 1
+        fi
+    - name: Deploy Docker to Azure
+      id: deploy-docker-to-azure
+      uses: azure/webapps-deploy@v3
+      with:        
+        app-name: ${{ env.WEBAPP_NAME }}
+        publish-profile: ${{ env.PUBLISH_PROFILE }}
+        images: 'ghcr.io/${{ github.repository }}:${{ github.event.workflow_run. }}'
