@@ -1,5 +1,5 @@
 name: Build
-run-name: Building ${{ github.repository }}
+run-name: Building ${{ github.repository }} by ${{ github.actor }}
 
 on:
   workflow_dispatch:
