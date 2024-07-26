@@ -180,17 +180,10 @@ jobs:
     env:
       version: ${{ needs.versioning.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
-
       - uses: actions/download-artifact@v4
         with:
           path: app
           merge-multiple: false
-
-      - name: Build Docker image
-        run: |
-          docker build -t ${{ github.repository }}:${{ env.version }} .
-          docker tag ${{ github.repository }}:${{ env.version }} ${{ github.repository }}:latest
 
       - uses: docker/login-action@v3
         with:
