@@ -186,3 +186,8 @@ jobs:
         with:
           path: app
           merge-multiple: false
+
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ github.repository }}:$NEW_VERSION app
+          docker tag ${{ github.repository }}:$NEW_VERSION ${{ github.repository }}:latest
