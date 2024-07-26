@@ -180,10 +180,17 @@ jobs:
     env:
       version: ${{ needs.versioning.outputs.version }}
     steps:
-      - uses: actions/download-artifact@v4
+      - name: Download API artifact
+        uses: actions/download-artifact@v4
         with:
-          path: app
-          merge-multiple: false
+          name: api-artifact
+          path: app/api
+
+      - name: Download Web artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: web-artifact
+          path: app/web
 
       - uses: docker/login-action@v3
         with:
