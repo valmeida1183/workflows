@@ -188,6 +188,8 @@ jobs:
           merge-multiple: false
 
       - name: Build Docker image
+        env:
+          NEW_VERSION: ${{ steps.version.outputs.version }}
         run: |
           docker build -t ${{ github.repository }}:${{ env.NEW_VERSION }} app
           docker tag ${{ github.repository }}:${{ env.NEW_VERSION }} ${{ github.repository }}:latest
