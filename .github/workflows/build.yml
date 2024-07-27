@@ -211,3 +211,4 @@ jobs:
     with:
       version: ${{ needs.versioning.outputs.version }}
       environment: Production
+    secrets: inherit
