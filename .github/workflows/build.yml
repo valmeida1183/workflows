@@ -190,7 +190,11 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -t ${{ github.repository }}:${{ env.version }} .
+
+      - name: Tag Docker image as Latest
+        run: |
           docker tag ${{ github.repository }}:${{ env.version }} ${{ github.repository }}:latest
+        if: github.ref == 'refs/heads/main'
 
       - uses: docker/login-action@v3
         with:
