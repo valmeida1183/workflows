@@ -1,5 +1,5 @@
 name: build
-run-name: Building ${{ github.repository }} by ${{ github.actor }}
+run-name: Build ${{ github.repository }} by ${{ github.actor }}
 
 on:
   workflow_dispatch:
@@ -206,4 +206,4 @@ jobs:
     uses: ./.github/workflows/deploy.yml
     with:
       version: ${{ needs.versioning.outputs.version }}
-      environment: Testing
+      environment: Production
