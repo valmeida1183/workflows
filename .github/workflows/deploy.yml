@@ -16,9 +16,6 @@ jobs:
     name: Azure
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment}}
-    env:
-      WEBAPP_NAME: ${{ vars.AZURE_WEBAPP_NAME }}
-      PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
     steps:
     - name: Validate environment input
       run: |
@@ -30,6 +27,6 @@ jobs:
       id: deploy-docker-to-azure
       uses: azure/webapps-deploy@v3
       with:        
-        app-name: ${{ env.WEBAPP_NAME }}
-        publish-profile: ${{ env.PUBLISH_PROFILE }}
+        app-name: ${{ vars.AZURE_WEBAPP_NAME }}
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         images: 'ghcr.io/${{ github.repository }}:${{ inputs.version }}'
