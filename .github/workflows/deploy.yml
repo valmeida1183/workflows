@@ -23,9 +23,7 @@ jobs:
           echo "Invalid environment: ${{ inputs.environment }}. Allowed values are 'Production' or 'Staging'."
           exit 1
         fi
-    
-    - uses: azure/login
-    
+   
     - name: Deploy Docker to Azure
       id: deploy-docker-to-azure
       uses: azure/webapps-deploy@v3
