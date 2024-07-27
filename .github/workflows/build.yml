@@ -199,3 +199,10 @@ jobs:
 
       - name: Run Docker push
         run: docker push --all-tags ${{ github.repository }}
+
+  deploy-to-azure:
+    needs: [versioning, build-docker-image]
+    uses: ./.github/workflows/release.yml
+    with:
+      version: ${{ needs.versioning.outputs.version }}
+      environment: production
