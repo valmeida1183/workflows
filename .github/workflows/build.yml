@@ -202,7 +202,8 @@ jobs:
 
   deploy-to-azure:
     needs: [versioning, build-docker-image]
-    uses: ./.github/workflows/release.yml
+    name: Deploy to Production
+    uses: ./.github/workflows/deploy.yml
     with:
       version: ${{ needs.versioning.outputs.version }}
-      environment: production
+      environment: Testing

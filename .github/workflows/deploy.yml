@@ -1,5 +1,5 @@
-name: release
-run-name: Releasing ${{ github.repository }} by ${{ github.actor }}
+name: deploy
+run-name: Deploying ${{ github.repository }} to ${{ inputs.environment}} by ${{ github.actor }}
 
 on:  
   workflow_call:
@@ -12,7 +12,7 @@ on:
         type: string
 
 jobs:
-  release-production:    
+  deploy-to-azure:    
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment}}
     env:
@@ -21,8 +21,8 @@ jobs:
     steps:
     - name: Validate environment input
       run: |
-        if [[ "${{ inputs.environment }}" != "production" && "${{ inputs.environment }}" != "staging" ]]; then
-          echo "Invalid environment: ${{ inputs.environment }}. Allowed values are 'production' or 'staging'."
+        if [[ "${{ inputs.environment }}" != "Production" && "${{ inputs.environment }}" != "Staging" ]]; then
+          echo "Invalid environment: ${{ inputs.environment }}. Allowed values are 'Production' or 'Staging'."
           exit 1
         fi
     - name: Deploy Docker to Azure
