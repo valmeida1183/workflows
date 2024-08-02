@@ -16,7 +16,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddCors();
 builder.Services.AddApplicationInsightsTelemetry(builder.Configuration);
-builder.Services.AddHealthChecks();
+builder.Services.AddHealthChecks()
+    .AddCheck<DatabaseHealthCheck>(nameof(DatabaseHealthCheck));
 
 var app = builder.Build();
 
