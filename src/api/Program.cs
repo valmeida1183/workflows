@@ -3,6 +3,7 @@ using SimpleTodo.Api;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration
+    .AddEnvironmentVariables()
     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
 
