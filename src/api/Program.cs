@@ -52,6 +52,9 @@ app.MapGroup("/lists")
     .MapTodoApi()
     .WithOpenApi();
 
+app.MapGroup("/version")
+    .MapVersionApi();
+
 // Healtch check
 app.MapHealthChecks("/hc");    
 
