@@ -9,7 +9,7 @@ builder.Configuration
 builder.Services.AddScoped<ListsRepository>();
 builder.Services.AddDbContext<TodoDb>(options =>
 {
-    var connectionString = builder.Configuration[builder.Configuration["AZURE_SQL_CONNECTION_STRING_KEY"]!];
+    var connectionString = builder.Configuration[builder.Configuration["SQL_CONNECTION_STRING_KEY"]!];
     options.UseSqlServer(connectionString, sqlOptions => sqlOptions.EnableRetryOnFailure());
 });
 builder.Services.AddEndpointsApiExplorer();
