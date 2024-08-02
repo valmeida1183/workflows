@@ -16,6 +16,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddCors();
 builder.Services.AddApplicationInsightsTelemetry(builder.Configuration);
+builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
@@ -49,4 +50,8 @@ app.UseStaticFiles(new StaticFileOptions
 app.MapGroup("/lists")
     .MapTodoApi()
     .WithOpenApi();
+
+// Healtch check
+app.MapHealthChecks("/hc");    
+
 app.Run();
