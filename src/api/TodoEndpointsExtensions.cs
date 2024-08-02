@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace SimpleTodo.Api
 {
@@ -164,7 +165,9 @@ namespace SimpleTodo.Api
 
         public static IResult GetAppVersion(IConfiguration configuration)
         {
-            var appVersion = configuration["FRAMEWORK_VERSION"] ?? "0.0.1-rc";
+            var appVersionRaw = configuration["FRAMEWORK_VERSION"] ?? "v0.0.1-rc";
+            var appVersion = Regex.Match(appVersionRaw, @"v[^:]+$").Value;
+
             return TypedResults.Ok(new AppVersion(appVersion));
         }
     }
