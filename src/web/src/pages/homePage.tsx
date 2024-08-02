@@ -11,7 +11,6 @@ import { ListActions } from '../actions/listActions';
 import { stackItemPadding, stackPadding, titleStackStyles } from '../ux/styles';
 import { useNavigate, useParams } from 'react-router-dom';
 import { bindActionCreators } from '../actions/actionCreators';
-import WithApplicationInsights from '../components/telemetryWithAppInsights.tsx';
 
 const HomePage = () => {
     const navigate = useNavigate();
@@ -157,6 +156,6 @@ const HomePage = () => {
     );
 };
 
-const HomePageWithTelemetry = WithApplicationInsights(HomePage, 'HomePage');
+const HomePageWithTelemetry = HomePage;
 
 export default HomePageWithTelemetry;
