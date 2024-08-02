@@ -215,3 +215,4 @@ jobs:
       version: ${{ needs.versioning.outputs.version }}
       environment: ${{ matrix.environment }}
     secrets: inherit 
+    if: github.ref == 'refs/heads/main'
