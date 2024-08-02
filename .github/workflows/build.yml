@@ -204,11 +204,33 @@ jobs:
       - name: Run Docker push
         run: docker push --all-tags ${{ github.repository }}
 
-  deploy-to-azure:
+  deploy-to-staging:
     needs: [versioning, build-docker-image]
-    name: Deploy to Production
+    name: Deploy to Staging
     uses: ./.github/workflows/deploy.yml
     with:
       version: ${{ needs.versioning.outputs.version }}
-      environment: Production
+      environment: Staging
     secrets: inherit
+
+  regression-test:
+    runs-on: ubuntu-latest
+    needs: [deploy-to-staging]
+    outputs:
+      CONTINUE_JOBS: ${{ steps.regression-test.outputs.CONTINUE_JOBS }}
+    steps:
+    - name: regression-test
+      id: regression-test
+      uses: benhamiltonpro/manual-trigger@v1
+      with:
+        RUN_NAME: "regression-test"
+
+  deploy-to-production:
+    needs: [versioning, build-docker-image, regression-test]
+    name: Deploy to Staging
+    uses: ./.github/workflows/deploy.yml
+    with:
+      version: ${{ needs.versioning.outputs.version }}
+      environment: Staging
+    secrets: inherit
+    if: ${{ needs.regression-test.outputs.CONTINUE_JOBS == 'true' }}    
