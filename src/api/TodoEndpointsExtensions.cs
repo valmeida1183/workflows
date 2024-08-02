@@ -165,7 +165,7 @@ namespace SimpleTodo.Api
 
         public static IResult GetAppVersion(IConfiguration configuration)
         {
-            var appVersionRaw = configuration["FRAMEWORK_VERSION"] ?? "v0.0.1-rc";
+            var appVersionRaw = configuration["MY_APP_VERSION"] ?? "v0.0.1-rc";
             var appVersion = Regex.Match(appVersionRaw, @"v[^:]+$").Value;
 
             Console.WriteLine($"Framework Version: {appVersion}");
