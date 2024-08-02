@@ -23,13 +23,6 @@ const HomePage = () => {
 
     const [isReady, setIsReady] = useState(false)
 
-    // Create default list of does not exist
-    useEffect(() => {
-        if (appContext.state.lists?.length === 0) {
-            actions.lists.save({ name: 'My List' });
-        }
-    }, [actions.lists, appContext.state.lists?.length])
-
     // Select default list on initial load
     useEffect(() => {
         if (appContext.state.lists?.length && !listId && !appContext.state.selectedList) {

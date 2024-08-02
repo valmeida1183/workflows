@@ -1,5 +1,10 @@
 import { FontIcon, getTheme, IconButton, IIconProps, IStackStyles, mergeStyles, Persona, PersonaSize, Stack, Text } from '@fluentui/react';
-import { FC, ReactElement } from 'react';
+import { FC, ReactElement, useContext, useEffect, useMemo } from 'react';
+import * as versionActions from '../actions/versionActions';
+import { VersionActions } from '../actions/versionActions';
+import { bindActionCreators } from '../actions/actionCreators';
+import { AppContext } from '../models/applicationState';
+import { TodoContext } from '../components/todoContext';
 
 const theme = getTheme();
 
@@ -35,11 +40,26 @@ const iconProps: IIconProps = {
 }
 
 const Header: FC = (): ReactElement => {
+    const appContext = useContext<AppContext>(TodoContext)
+    const actions = useMemo(() => ({
+        version: bindActionCreators(versionActions, appContext.dispatch) as unknown as VersionActions,
+    }), [appContext.dispatch]);    
+    
+    // Display current version on initial load
+    useEffect(() => {
+        if (!appContext.state.version?.value) {
+            const loadVersion = async () => {
+                appContext.state.version = await actions.version.get();
+            }
+            loadVersion();
+        }
+    });
+
     return (
         <Stack horizontal>
             <Stack horizontal styles={logoStyles}>
                 <FontIcon aria-label="Check" iconName="SkypeCircleCheck" className={logoIconClass} />
-                <Text variant="xLarge">ToDo</Text>
+                <Text variant="xLarge">ToDo - {appContext.state.version?.value}</Text>
             </Stack>
             <Stack.Item grow={1}>
                 <div></div>
