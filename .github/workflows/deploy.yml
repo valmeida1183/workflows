@@ -12,7 +12,7 @@ on:
         type: string
 
 env:
-  DOCKER_IMAGE_VERSION: '${{ vars.DOCKER_CONTAINER_REGISTRY }}/${{ github.repository }}:${{ inputs.version }}'
+  DOCKER_IMAGE_VERSION: '${{ vars.DOCKER_CONTAINER_REGISTRY }}/${{ github.repository }}:${{ inputs.version }}'  
 
 jobs:
   deploy-to-azure:
@@ -40,33 +40,26 @@ jobs:
     name: AWS
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
-    env:
-      AWS_REGION: ${{ vars.MY_AWS_REGION }}      
-      ECS_SERVICE: ${{ vars.MY_ECS_SERVICE }}                 
-      ECS_CLUSTER: ${{ vars.MY_ECS_CLUSTER }}
-      ECS_TASK_DEFINITION: ${{ vars.AWS_ECS_TASK_DEFINITION }}                                                   
-      CONTAINER_NAME: ${{ vars.AWS_CONTAINER_NAME }}
-                                                  
     steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: ${{ env.ECS_TASK_DEFINITION }}
-          container-name: ${{ env.CONTAINER_NAME }}
+          task-definition: ${{ vars.AWS_ECS_TASK_DEFINITION }}
+          container-name: ${{ vars.AWS_CONTAINER_NAME }}
           image: ${{ env.DOCKER_IMAGE_VERSION }}
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: ${{ env.ECS_SERVICE }}
-          cluster: ${{ env.ECS_CLUSTER }}
+          service: ${{ vars.AWS_ECS_SERVICE }}
+          cluster: ${{ vars.AWS_ECS_CLUSTER }}
           wait-for-service-stability: true
