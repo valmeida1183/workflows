@@ -11,6 +11,9 @@ on:
         required: true
         type: string
 
+env:
+  DOCKER_IMAGE_VERSION: '${{ vars.DOCKER_CONTAINER_REGISTRY }}/${{ github.repository }}:${{ inputs.version }}'
+
 jobs:
   deploy-to-azure:
     name: Azure
@@ -31,4 +34,39 @@ jobs:
         app-name: ${{ vars.AZURE_WEBAPP_NAME }}
         resource-group-name: ${{ vars.AZURE_RESOURCE_GROUP }}
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        images: '${{ vars.DOCKER_CONTAINER_REGISTRY }}/${{ github.repository }}:${{ inputs.version }}'
+        images: ${{ env.DOCKER_IMAGE_VERSION }}
+
+  deploy-to-aws:
+    name: AWS
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    env:
+      AWS_REGION: ${{ vars.MY_AWS_REGION }}      
+      ECS_SERVICE: ${{ vars.MY_ECS_SERVICE }}                 
+      ECS_CLUSTER: ${{ vars.MY_ECS_CLUSTER }}
+      ECS_TASK_DEFINITION: ${{ vars.AWS_ECS_TASK_DEFINITION }}                                                   
+      CONTAINER_NAME: ${{ vars.AWS_CONTAINER_NAME }}
+                                                  
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ env.ECS_TASK_DEFINITION }}
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ env.DOCKER_IMAGE_VERSION }}
+
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
