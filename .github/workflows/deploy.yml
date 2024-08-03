@@ -79,6 +79,12 @@ jobs:
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
+      - uses: 'google-github-actions/get-gke-credentials@v2'
+        with:
+          cluster_name: ${{ vars.GCP_GKE_CLUSTER }}
+          location: ${{ vars.GCP_GKE_REGION }}
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+
       - uses: google-github-actions/deploy-gke@v0
         with:
           image: ${{ env.DOCKER_IMAGE_VERSION }}
