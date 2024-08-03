@@ -78,7 +78,7 @@ jobs:
         uses: restackio/update-json-file-action@2.1
         with:
           file: ./publish/appsettings.json
-          fields: "{'MY_APP_VERSION': '${{ needs.versioning.outputs.version }}'}"        
+          fields: "{\"MY_APP_VERSION\": \"${{ needs.versioning.outputs.version }}\"}"
 
       - name: Upload dotnet artifacts
         uses: actions/upload-artifact@v4
