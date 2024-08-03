@@ -77,7 +77,7 @@ jobs:
       - name: Tag published version
         uses: restackio/update-json-file-action@2.1
         with:
-          file: ./publish/appSettings.json
+          file: ./publish/appsettings.json
           fields: "{'MY_APP_VERSION': '${{ needs.versioning.outputs.version }}'}"        
 
       - name: Upload dotnet artifacts
