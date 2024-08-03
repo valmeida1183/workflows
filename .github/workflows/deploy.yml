@@ -69,7 +69,7 @@ jobs:
   deploy-to-gcp:
     name: GCP
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
+    environment: ${{ inputs.environment }} 
     permissions:
       id-token: write
       contents: read
@@ -83,6 +83,6 @@ jobs:
         with:
           image: ${{ env.DOCKER_IMAGE_VERSION }}
           app_name: ${{ github.repository }}
-          region: ${{ vars.GCP_REGION }}
-          cluster_name: ${{ vars.GCP_CLUSTER }}
-          project_id: ${{ vars.GCP_PROJECT }}
+          region: ${{ vars.GCP_GKE_REGION }}
+          cluster_name: ${{ vars.GCP_GKE_CLUSTER }}
+          project_id: ${{ vars.GCP_PROJECT_ID }}
