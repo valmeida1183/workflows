@@ -65,3 +65,38 @@ jobs:
           service: ${{ vars.AWS_ECS_SERVICE }}
           cluster: ${{ vars.AWS_ECS_CLUSTER }}
           wait-for-service-stability: true
+
+  deploy-to-gcp:
+    name: GCP
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: 'google-github-actions/auth@v2'
+        id: 'auth'      
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+
+      - uses: google-github-actions/get-gke-credentials@v2
+        with:
+          cluster_name: ${{ vars.GCP_GKE_CLUSTER }}
+          location: ${{ vars.GCP_GKE_REGION }}
+     
+      - name: Set up Kustomize
+        run: |-
+          curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
+          chmod u+x ./kustomize
+
+      - name: Deploy
+        run: |-
+          ./kustomize edit set image gcr.io/${{ vars.GCP_PROJECT_ID }}/IMAGE:TAG=${{ env.DOCKER_IMAGE_VERSION }}
+          ./kustomize build . | kubectl apply -f -
+          kubectl rollout status deployment/${{ github.repository }}-deployment
+          kubectl get services -o wide
