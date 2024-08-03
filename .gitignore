@@ -6,7 +6,8 @@
 bin/
 obj/
 runtimes/
-app/
+/app
+/publish
 
 # Common node modules locations
 /node_modules

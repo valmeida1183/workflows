@@ -74,6 +74,12 @@ jobs:
         run: dotnet publish ./src/api/Todo.Api.csproj --no-restore --no-build --configuration Release --output ./publish
         if: github.ref == 'refs/heads/main'
 
+      - name: Tag published version
+        uses: restackio/update-json-file-action@2.1
+        with:
+          file: ./publish/appSettings.json
+          fields: "{'MY_APP_VERSION': '${{ needs.versioning.outputs.version }}'}"        
+
       - name: Upload dotnet artifacts
         uses: actions/upload-artifact@v4
         with:
