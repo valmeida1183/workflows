@@ -6,6 +6,8 @@ COPY ./app/web ./app/wwwroot
 
 # Set working directory
 WORKDIR /app
+EXPOSE 80
 
 # Run the app
+ENV ASPNETCORE_URLS=http://+:80
 ENTRYPOINT ["dotnet", "./Todo.Api.dll"]
