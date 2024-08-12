@@ -78,7 +78,7 @@ jobs:
       - uses: google-github-actions/auth@v2
         id: 'auth'      
         with:
-          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
           project_id: ${{ vars.GCP_PROJECT_ID }}
 
       - uses: google-github-actions/deploy-cloudrun@v2
