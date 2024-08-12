@@ -78,7 +78,7 @@ jobs:
       - uses: google-github-actions/auth@v2
         id: 'auth'      
         with:
-          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
           project_id: ${{ vars.GCP_PROJECT_ID }}
 
       - uses: google-github-actions/deploy-cloudrun@v2
@@ -87,7 +87,6 @@ jobs:
           service: ${{ vars.GCP_RUN_SERVICE }}
           region: ${{ vars.GCP_RUN_REGION }}          
           image: ${{ env.DOCKER_IMAGE_VERSION }}
-          tag: ${{ inputs.version }}
 
       - name: 'Use output'
         run: 'curl "${{ steps.deploy.outputs.url }}"'
