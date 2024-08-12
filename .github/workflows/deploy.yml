@@ -89,7 +89,7 @@ jobs:
       - uses: google-github-actions/deploy-gke@v0
         with:
           image: ${{ env.DOCKER_IMAGE_VERSION }}
-          app_name: ${{ github.repository }}
+          app_name: ${{ vars.APP_NAME }}
           region: ${{ vars.GCP_GKE_REGION }}
           cluster_name: ${{ vars.GCP_GKE_CLUSTER }}
           project_id: ${{ vars.GCP_PROJECT_ID }}
