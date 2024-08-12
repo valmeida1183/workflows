@@ -80,16 +80,12 @@ jobs:
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
-      - uses: 'google-github-actions/get-gke-credentials@v2'
+      - uses: google-github-actions/deploy-cloudrun@v2
+        id: 'deploy'
         with:
-          cluster_name: ${{ vars.GCP_GKE_CLUSTER }}
-          location: ${{ vars.GCP_GKE_REGION }}
-          project_id: ${{ vars.GCP_PROJECT_ID }}
-
-      - uses: google-github-actions/deploy-gke@v0
-        with:
+          service: ${{ vars.GCP_RUN_SERVICE }}
           image: ${{ env.DOCKER_IMAGE_VERSION }}
-          app_name: ${{ vars.APP_NAME }}
-          region: ${{ vars.GCP_GKE_REGION }}
-          cluster_name: ${{ vars.GCP_GKE_CLUSTER }}
-          project_id: ${{ vars.GCP_PROJECT_ID }}
+          tag: ${{ inputs.version }}
+
+      - name: 'Use output'
+        run: 'curl "${{ steps.deploy.outputs.url }}"'
