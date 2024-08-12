@@ -84,8 +84,7 @@ jobs:
         id: 'deploy'
         with:
           service: ${{ vars.GCP_RUN_SERVICE }}
-          region: ${{ vars.GCP_RUN_REGION }}
-          project_id: ${{ vars.GCP_PROJECT_ID }}
+          region: ${{ vars.GCP_RUN_REGION }}          
           image: ${{ env.DOCKER_IMAGE_VERSION }}
           tag: ${{ inputs.version }}
 
