@@ -37,6 +37,7 @@ jobs:
         images: ${{ env.DOCKER_IMAGE_VERSION }}
 
   deploy-to-aws:
+    if: false
     name: AWS
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
@@ -89,7 +90,7 @@ jobs:
           image: ${{ env.DOCKER_IMAGE_VERSION }}
           env_vars: |-
             SQL_CONNECTION_STRING_KEY="ConnectionStrings:TodoDb"
-            ConnectionStrings:TodoDb="{{ secrets.GCP_SQL_CONNECTION_STRING }}"
+            ConnectionStrings:TodoDb="${{ secrets.GCP_SQL_CONNECTION_STRING }}"
 
       - name: 'Use output'
         run: 'curl "${{ steps.deploy.outputs.url }}"'
