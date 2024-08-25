@@ -38,7 +38,7 @@ jobs:
 
     - name: 'Test the deployment'
       run: |-
-        echo "::notice:: [GCP][${{ inputs.environment }}]: ${{ steps.deploy.outputs.url }}"
+        echo "::notice:: [AZR][${{ inputs.environment }}]: ${{ steps.deploy.outputs.url }}"
         curl -I --fail ${{ steps.deploy.outputs.url }}
 
   deploy-to-aws:
