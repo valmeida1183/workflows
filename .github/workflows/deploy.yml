@@ -38,7 +38,7 @@ jobs:
 
     - name: 'Test the deployment'
       run: |-
-        echo "::notice:: [AZR][${{ inputs.environment }}]: ${{ steps.deploy.outputs.url }}/index.html"
+        echo "::notice:: ${{ steps.deploy.outputs.url }}/index.html"
         curl -I --fail "${{ steps.deploy.outputs.url }}/index.html"
 
   deploy-to-aws:
@@ -96,5 +96,5 @@ jobs:
 
       - name: 'Test the deployment'
         run: |-
-          echo "::notice:: [GCP][${{ inputs.environment }}]: ${{ steps.deploy.outputs.url }}/index.html"
+          echo "::notice:: ${{ steps.deploy.outputs.url }}/index.html"
           curl -I --fail "${{ steps.deploy.outputs.url }}/index.html"
