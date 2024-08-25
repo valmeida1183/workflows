@@ -38,8 +38,8 @@ jobs:
 
     - name: 'Test the deployment'
       run: |-
-        echo "::notice:: ${{ steps.deploy-to-azure.outputs.url }}/index.html"
-        curl -I --fail "${{ steps.deploy-to-azure.outputs.url }}/index.html"
+        echo "::notice:: ${{ steps.deploy-to-azure.outputs.webapp-url }}/index.html"
+        curl -I --fail "${{ steps.deploy-to-azure.outputs.webapp-url }}/index.html"
 
   deploy-to-aws:
     if: false
