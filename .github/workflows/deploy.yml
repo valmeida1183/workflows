@@ -88,9 +88,6 @@ jobs:
           service: ${{ vars.GCP_RUN_SERVICE }}
           region: ${{ vars.GCP_RUN_REGION }}          
           image: ${{ env.DOCKER_IMAGE_VERSION }}
-          env_vars: |-
-            SQL_CONNECTION_STRING_KEY=ConnectionStrings:TodoDb
-            ConnectionStrings:TodoDb=${{ secrets.GCP_SQL_CONNECTION_STRING }}
 
       - name: 'Use output'
         run: 'curl "${{ steps.deploy.outputs.url }}/index.html"'
