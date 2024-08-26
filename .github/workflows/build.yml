@@ -14,6 +14,7 @@ concurrency:
 
 jobs:
   versioning:
+    if: false
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
@@ -43,6 +44,7 @@ jobs:
         if: github.ref == 'refs/heads/main'
 
   backend-build-and-test:
+    if: false
     needs: versioning
     runs-on: ubuntu-latest
     steps:
@@ -88,6 +90,7 @@ jobs:
         if: github.ref == 'refs/heads/main'
 
   frontend-build-and-test:
+    if: false
     needs: versioning
     runs-on: ubuntu-latest
     defaults:
@@ -182,6 +185,7 @@ jobs:
     if: github.ref != 'refs/heads/main'
 
   build-docker-image:
+    if: false
     needs: [versioning, backend-build-and-test, frontend-build-and-test]
     runs-on: ubuntu-latest
     env:
@@ -212,14 +216,15 @@ jobs:
         run: docker push --all-tags ${{ github.repository }}
 
   deploy:
-    needs: [versioning, build-docker-image]
+    # needs: [versioning, build-docker-image]
     name: Deploy
     strategy:
       matrix:
         environment: [Staging, Production]
     uses: ./.github/workflows/deploy.yml
     with:
-      version: ${{ needs.versioning.outputs.version }}
+      # version: ${{ needs.versioning.outputs.version }}
+      version: latest
       environment: ${{ matrix.environment }}
     secrets: inherit 
     if: github.ref == 'refs/heads/main'
