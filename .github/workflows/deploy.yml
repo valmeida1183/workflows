@@ -41,8 +41,7 @@ jobs:
         echo "::notice:: ${{ steps.deploy-to-azure.outputs.webapp-url }}/index.html"
         curl -I --fail "${{ steps.deploy-to-azure.outputs.webapp-url }}/index.html"
 
-  deploy-to-aws:
-    if: false
+  deploy-to-aws:    
     name: AWS
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
@@ -65,7 +64,7 @@ jobs:
           image: ${{ env.DOCKER_IMAGE_VERSION }}
 
       - name: Deploy Amazon ECS task definition
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         timeout-minutes: 3
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
