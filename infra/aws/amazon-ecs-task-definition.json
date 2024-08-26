@@ -1,4 +1,5 @@
 {
+    "taskDefinitionArn": "arn:aws:ecs:eu-central-1:343218214691:task-definition/todo-csharp-sql:1",
     "containerDefinitions": [
         {
             "name": "todo-csharp-sql",
@@ -8,34 +9,88 @@
                 {
                     "containerPort": 80,
                     "hostPort": 80,
-                    "protocol": "tcp"
+                    "protocol": "tcp",
+                    "name": "todo-csharp-sql-80-tcp",
+                    "appProtocol": "http"
                 }
             ],
             "essential": true,
-            "entryPoint": [],
-            "command": [],
-            "environment": [],
+            "environment": [
+                {
+                    "name": "ConnectionStrings:TodoDb",
+                    "value": "Server=tcp:10.69.0.3;Initial Catalog=todo-csharp-sql-staging;User ID=sqlserver;Password=!MySecretTemplafyPassword1;TrustServerCertificate=True;"
+                },
+                {
+                    "name": "SQL_CONNECTION_STRING_KEY",
+                    "value": "ConnectionStrings:TodoDb"
+                }
+            ],
+            "environmentFiles": [],
             "mountPoints": [],
             "volumesFrom": [],
-            "systemControls": [],
+            "ulimits": [],
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
-                    "awslogs-group": "/ecs/dominandogithubactions",
+                    "awslogs-group": "/ecs/todo-csharp-sql",
+                    "mode": "non-blocking",
+                    "awslogs-create-group": "true",
+                    "max-buffer-size": "25m",
                     "awslogs-region": "eu-central-1",
                     "awslogs-stream-prefix": "ecs"
-                }
-            }
+                },
+                "secretOptions": []
+            },
+            "systemControls": []
         }
     ],
-    "family": "dominandogithubactions",
+    "family": "todo-csharp-sql",
+    "taskRoleArn": "arn:aws:iam::343218214691:role/GitHub",
+    "executionRoleArn": "arn:aws:iam::343218214691:role/GitHub",
     "networkMode": "awsvpc",
+    "revision": 1,
     "volumes": [],
+    "status": "ACTIVE",
+    "requiresAttributes": [
+        {
+            "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+        },
+        {
+            "name": "ecs.capability.execution-role-awslogs"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.28"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.task-iam-role"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+        },
+        {
+            "name": "ecs.capability.task-eni"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
+        }
+    ],
     "placementConstraints": [],
+    "compatibilities": [
+        "EC2",
+        "FARGATE"
+    ],
+    "runtimePlatform": {
+        "cpuArchitecture": "X86_64",
+        "operatingSystemFamily": "LINUX"
+    },
     "requiresCompatibilities": [
         "FARGATE"
     ],
     "cpu": "256",
     "memory": "512",
-    "tags": []
+    "registeredAt": "2024-08-26T20:31:14.429000+02:00",
+    "registeredBy": "arn:aws:iam::343218214691:root"
 }
