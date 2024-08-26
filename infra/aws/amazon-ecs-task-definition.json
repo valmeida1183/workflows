@@ -17,10 +17,18 @@
             "environment": [],
             "mountPoints": [],
             "volumesFrom": [],
-            "systemControls": []
+            "systemControls": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/dominandogithubactions",
+                    "awslogs-region": "us-west-2",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            }
         }
     ],
-    "family": "sample-fargate",
+    "family": "dominandogithubactions",
     "networkMode": "awsvpc",
     "volumes": [],
     "placementConstraints": [],
