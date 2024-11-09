@@ -76,7 +76,7 @@ jobs:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
           service: ${{ vars.AWS_ECS_SERVICE }}
           cluster: ${{ vars.AWS_ECS_CLUSTER }}
-          wait-for-service-stability: true
+          wait-for-service-stability: false
 
       - name: 'Test the deployment'
         run: |-
