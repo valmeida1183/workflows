@@ -1,30 +1,27 @@
 {
-    "taskDefinitionArn": "arn:aws:ecs:eu-central-1:343218214691:task-definition/todo-csharp-sql:1",
+    "taskDefinitionArn": "arn:aws:ecs:eu-west-1:911167883478:task-definition/todo-app-task-definition:9",
     "containerDefinitions": [
         {
-            "name": "todo-csharp-sql",
-            "image": "docker.io/thiagolunardi/todo-csharp-sql:latest",
+            "name": "todo-app",
+            "image": "docker.io/thiagolunardi/todo-app:latest",
             "cpu": 0,
             "portMappings": [
                 {
+                    "name": "todo-app-80-tcp",
                     "containerPort": 80,
                     "hostPort": 80,
                     "protocol": "tcp",
-                    "name": "todo-csharp-sql-80-tcp",
+                    "appProtocol": "http"
+                },
+                {
+                    "name": "todo-app-8080-tcp",
+                    "containerPort": 8080,
+                    "hostPort": 8080,
+                    "protocol": "tcp",
                     "appProtocol": "http"
                 }
             ],
             "essential": true,
-            "environment": [
-                {
-                    "name": "ConnectionStrings:TodoDb",
-                    "value": "Server=tcp:10.69.0.3;Initial Catalog=todo-csharp-sql-staging;User ID=sqlserver;Password=!MySecretTemplafyPassword1;TrustServerCertificate=True;"
-                },
-                {
-                    "name": "SQL_CONNECTION_STRING_KEY",
-                    "value": "ConnectionStrings:TodoDb"
-                }
-            ],
             "environmentFiles": [],
             "mountPoints": [],
             "volumesFrom": [],
@@ -32,11 +29,11 @@
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
-                    "awslogs-group": "/ecs/todo-csharp-sql",
+                    "awslogs-group": "/ecs/todo-app-task-definition",
                     "mode": "non-blocking",
                     "awslogs-create-group": "true",
                     "max-buffer-size": "25m",
-                    "awslogs-region": "eu-central-1",
+                    "awslogs-region": "eu-west-1",
                     "awslogs-stream-prefix": "ecs"
                 },
                 "secretOptions": []
@@ -44,11 +41,10 @@
             "systemControls": []
         }
     ],
-    "family": "todo-csharp-sql",
-    "taskRoleArn": "arn:aws:iam::343218214691:role/GitHub",
-    "executionRoleArn": "arn:aws:iam::343218214691:role/GitHub",
+    "family": "todo-app-task-definition",
+    "executionRoleArn": "arn:aws:iam::911167883478:role/ecsTaskExecutionRole",
     "networkMode": "awsvpc",
-    "revision": 1,
+    "revision": 9,
     "volumes": [],
     "status": "ACTIVE",
     "requiresAttributes": [
@@ -65,9 +61,6 @@
             "name": "com.amazonaws.ecs.capability.docker-remote-api.1.28"
         },
         {
-            "name": "com.amazonaws.ecs.capability.task-iam-role"
-        },
-        {
             "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
         },
         {
@@ -82,15 +75,16 @@
         "EC2",
         "FARGATE"
     ],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "512",
+    "memory": "1024",
     "runtimePlatform": {
         "cpuArchitecture": "X86_64",
         "operatingSystemFamily": "LINUX"
     },
-    "requiresCompatibilities": [
-        "FARGATE"
-    ],
-    "cpu": "256",
-    "memory": "512",
-    "registeredAt": "2024-08-26T20:31:14.429000+02:00",
-    "registeredBy": "arn:aws:iam::343218214691:root"
+    "registeredAt": "2024-11-09T15:39:32.095Z",
+    "registeredBy": "arn:aws:iam::911167883478:root",
+    "tags": []
 }

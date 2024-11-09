@@ -44,7 +44,9 @@ jobs:
   deploy-to-aws:    
     name: AWS
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
+    environment: staging # ${{ inputs.environment }}
+    env:
+      TASK_DEFINITION_PATH: ./infra/aws/amazon-ecs-task-definition.json
     steps:
       - uses: actions/checkout@v4
 
@@ -59,9 +61,12 @@ jobs:
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: ${{ vars.AWS_ECS_TASK_DEFINITION }}
-          container-name: ${{ vars.AWS_CONTAINER_NAME }}
+          task-definition: ${{ env.TASK_DEFINITION_PATH }}
+          container-name: ${{ vars.AWS_ECS_CONTAINER_NAME }}
           image: ${{ env.DOCKER_IMAGE_VERSION }}
+          environment-variables: |
+            "SQL_CONNECTION_STRING_KEY"="ConnectionStrings:TodoDb"
+            "ConnectionStrings:TodoDb"="${{ secrets.AWS_CONNSTR }}"
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
