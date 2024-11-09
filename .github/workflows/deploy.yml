@@ -16,6 +16,7 @@ env:
 
 jobs:
   deploy-to-azure:
+    if: false
     name: Azure
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
@@ -78,6 +79,7 @@ jobs:
           wait-for-service-stability: true
 
   deploy-to-gcp:
+    if: false
     name: GCP
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }} 
