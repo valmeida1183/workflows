@@ -45,7 +45,7 @@ jobs:
   deploy-to-aws:    
     name: AWS
     runs-on: ubuntu-latest
-    environment: staging # ${{ inputs.environment }}
+    environment: ${{ inputs.environment }}
     env:
       TASK_DEFINITION_PATH: ./infra/aws/amazon-ecs-task-definition.json
     steps:
@@ -77,6 +77,12 @@ jobs:
           service: ${{ vars.AWS_ECS_SERVICE }}
           cluster: ${{ vars.AWS_ECS_CLUSTER }}
           wait-for-service-stability: true
+
+      - name: 'Test the deployment'
+        run: |-
+          echo "::notice:: ${{ vars.AWS_ECS_LOAD_BALANCER_ENDPOINT }}/index.html"
+          curl -I --fail "${{ vars.AWS_ECS_LOAD_BALANCER_ENDPOINT }}/index.html"
+    
 
   deploy-to-gcp:
     if: false
