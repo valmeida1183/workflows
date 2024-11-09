@@ -66,8 +66,8 @@ jobs:
           container-name: ${{ vars.AWS_ECS_CONTAINER_NAME }}
           image: ${{ env.DOCKER_IMAGE_VERSION }}
           environment-variables: |
-            "SQL_CONNECTION_STRING_KEY"="ConnectionStrings:TodoDb"
-            "ConnectionStrings:TodoDb"="${{ secrets.AWS_CONNSTR }}"
+            SQL_CONNECTION_STRING_KEY=ConnectionStrings:TodoDb
+            ConnectionStrings:TodoDb=${{ secrets.AWS_CONNSTR }}
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
