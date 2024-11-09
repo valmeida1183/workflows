@@ -1,5 +1,4 @@
 {
-    "taskDefinitionArn": "arn:aws:ecs:eu-west-1:911167883478:task-definition/todo-app-task-definition:9",
     "containerDefinitions": [
         {
             "name": "todo-app",
@@ -44,37 +43,8 @@
     "family": "todo-app-task-definition",
     "executionRoleArn": "arn:aws:iam::911167883478:role/ecsTaskExecutionRole",
     "networkMode": "awsvpc",
-    "revision": 9,
     "volumes": [],
-    "status": "ACTIVE",
-    "requiresAttributes": [
-        {
-            "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
-        },
-        {
-            "name": "ecs.capability.execution-role-awslogs"
-        },
-        {
-            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
-        },
-        {
-            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.28"
-        },
-        {
-            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
-        },
-        {
-            "name": "ecs.capability.task-eni"
-        },
-        {
-            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
-        }
-    ],
     "placementConstraints": [],
-    "compatibilities": [
-        "EC2",
-        "FARGATE"
-    ],
     "requiresCompatibilities": [
         "FARGATE"
     ],
@@ -84,7 +54,5 @@
         "cpuArchitecture": "X86_64",
         "operatingSystemFamily": "LINUX"
     },
-    "registeredAt": "2024-11-09T15:39:32.095Z",
-    "registeredBy": "arn:aws:iam::911167883478:root",
     "tags": []
 }
