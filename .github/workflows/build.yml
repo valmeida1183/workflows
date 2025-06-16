@@ -40,4 +40,5 @@ jobs:
         run: npm install
 
       - name: Build React project # Faz o build no projeto frontend react
+        working-directory: ./src/web
         run: npm run build
