@@ -1,0 +1,45 @@
+name: Build Project
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch: # permite roda o workflow manualmente
+
+jobs:
+  build-entire-project:
+    runs-on: ubuntu-latest
+    name: Build Entire Project
+
+    steps:
+      - name: Checkout code # Serve para fazer o checkout do código do projeto para o runner (máquina que roda o pipeline)
+        uses: actions/checkout@v4
+
+      - name: Setup .NET Core # Instala o .Net no runner
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+
+      - name: Restore .NET dependencies # Faz o restore dos pacotes
+        working-directory: ./src
+        run: dotnet restore
+
+      - name: Build .NET solution # Faz o build da solution
+        working-directory: ./src
+        run: dotnet build --no-restore
+
+      - name: Setup Node.js # Instala o Node.js no runner
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Npm packages # Instala os pacotes npm no frontend
+        working-directory: ./src/web
+        run: npm install
+
+      - name: Build React project # Faz o build no projeto frontend react
+        working-directory: ./src/web
+        run: npm run build
