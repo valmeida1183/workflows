@@ -10,6 +10,23 @@ on:
   workflow_dispatch: # permite roda o workflow manualmente
 
 jobs:
+  versioning: # vamos versionar as integrações com o uso de uma action existente: https://github.com/marketplace/actions/git-version
+    runs-on: ubuntu-latest
+    name: Versioning
+
+    steps:
+      - name: Checkout code # Serve para fazer o checkout do código do projeto para o runner (máquina que roda o pipeline)
+        uses: actions/checkout@v4
+        with: # Essa config abaixo é para a action do git-version poder pegar todo o histório de commits para poder computar sua versão
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Git Version
+        uses: codacy/git-version@2.8.2
+        with:
+          release-branch: main # Aponta branch a ser versionada
+          prefix: v # Adiciona um prefixo "v" nas versões, é uma boa prática e deixa mais legível
+
   build-entire-project:
     runs-on: ubuntu-latest
     name: Build Entire Project
