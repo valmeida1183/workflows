@@ -42,7 +42,41 @@ jobs:
           echo "::notice::Repository tagged with version ${{ steps.git-version.outputs.version }}"
         if: github.ref == 'refs/heads/main' # Garante que a tag só será criada se o workflow estiver rodando na branch main
 
-  build-entire-project:
+  backend-build-and-test:
+    needs: versioning # Define que esse job depende do job de versionamento, ou seja, só será executado após o término do job de versionamento
+    runs-on: ubuntu-latest
+    name: Backend Build and Test
+
+    steps:
+      - name: Checkout code # Serve para fazer o checkout do código do projeto para o runner (máquina que roda o pipeline)
+        uses: actions/checkout@v4
+
+      - name: Setup .NET Core # Instala o .Net no runner
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+          cache: true
+          cache-dependency-path: ./src/**/packages.lock.json
+
+      - name: Restore .NET dependencies # Faz o restore dos pacotes
+        working-directory: ./src
+        run: dotnet restore
+
+      - name: Build .NET solution # Faz o build da solution
+        working-directory: ./src
+        run: dotnet build --no-restore
+
+      - name: Test .NET # Roda os testes e grava um log na pasta TestResults no runner
+        run: |
+          dotnet test --no-build --no-restore ./src/Todo.Api.sln --configuration Release --logger trx --results-directory "TestResults"
+
+      - uses: actions/upload-artifact@v4 # Action para fazer o upload de algum artefato, no caso o arquivo de log dos testes
+        with:
+          name: dotnet-test-results
+          path: TestResults
+
+  frontend-build-and-test:
+    if: false
     runs-on: ubuntu-latest
     name: Build Entire Project
 
