@@ -33,6 +33,14 @@ jobs:
         working-directory: ./src
         run: dotnet build --no-restore
 
+      - name: Test .NET # Roda os testes e grava um log na pasta TestResults no runner
+        run: dotnet test --no-build --no-restore ./src/Todo.Api.sln --logger trx --results-directory "TestResults"
+
+      - uses: actions/upload-artifact@v4 # Action para fazer o upload de algum artefato, no caso o arquivo de log dos testes
+        with:
+          name: dotnet-test-results
+          path: TestResults
+
       - name: Setup Node.js # Instala o Node.js no runner
         uses: actions/setup-node@v4
         with:
