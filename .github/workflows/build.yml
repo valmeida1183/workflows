@@ -64,7 +64,7 @@ jobs:
 
       - name: Build .NET solution # Faz o build da solution
         working-directory: ./src
-        run: dotnet build --no-restore
+        run: dotnet build --no-restore --configuration Release # O parâmetro --no-restore é usado para não restaurar os pacotes novamente, já que o restore foi feito anteriormente
 
       - name: Test .NET # Roda os testes e grava um log na pasta TestResults no runner
         run: |
