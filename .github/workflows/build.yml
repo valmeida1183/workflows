@@ -13,6 +13,8 @@ jobs:
   versioning: # vamos versionar as integrações com o uso de uma action existente: https://github.com/marketplace/actions/git-version
     runs-on: ubuntu-latest
     name: Versioning
+    permissions: # Permissões necessárias para o job, nesse caso, para escrever no repositório
+      contents: write
 
     steps:
       - name: Checkout code # Serve para fazer o checkout do código do projeto para o runner (máquina que roda o pipeline)
