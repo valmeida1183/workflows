@@ -42,9 +42,10 @@ jobs:
           echo "::notice::Repository tagged with version ${{ steps.git-version.outputs.version }}"
         if: github.ref == 'refs/heads/main' # Garante que a tag só será criada se o workflow estiver rodando na branch main
 
-  build-entire-project:
+  backend-build-and-test:
+    needs: versioning # Define que esse job depende do job de versionamento, ou seja, só será executado após o término do job de versionamento
     runs-on: ubuntu-latest
-    name: Build Entire Project
+    name: Backend Build and Test
 
     steps:
       - name: Checkout code # Serve para fazer o checkout do código do projeto para o runner (máquina que roda o pipeline)
@@ -63,15 +64,28 @@ jobs:
 
       - name: Build .NET solution # Faz o build da solution
         working-directory: ./src
-        run: dotnet build --no-restore
+        run: dotnet build --no-restore --configuration Release # O parâmetro --no-restore é usado para não restaurar os pacotes novamente, já que o restore foi feito anteriormente
 
       - name: Test .NET # Roda os testes e grava um log na pasta TestResults no runner
-        run: dotnet test --no-build --no-restore ./src/Todo.Api.sln --logger trx --results-directory "TestResults"
+        run: |
+          dotnet test --no-build --no-restore ./src/Todo.Api.sln --configuration Release --logger trx --results-directory "TestResults"
 
       - uses: actions/upload-artifact@v4 # Action para fazer o upload de algum artefato, no caso o arquivo de log dos testes
         with:
           name: dotnet-test-results
           path: TestResults
+
+  frontend-build-and-test:
+    needs: versioning # Define que esse job depende do job de versionamento, ou seja, só será executado após o término do job de versionamento
+    runs-on: ubuntu-latest
+    name: Frontend Build and Test
+    defaults:
+      run:
+        working-directory: ./src/web # Define o diretório de trabalho padrão para as etapas desse job, assim não é necessário especificar o diretório em cada etapa
+
+    steps:
+      - name: Checkout code # Serve para fazer o checkout do código do projeto para o runner (máquina que roda o pipeline)
+        uses: actions/checkout@v4
 
       - name: Setup Node.js # Instala o Node.js no runner
         uses: actions/setup-node@v4
@@ -81,9 +95,10 @@ jobs:
           cache-dependency-path: ./src/web
 
       - name: Install Npm packages # Instala os pacotes npm no frontend
-        working-directory: ./src/web
-        run: npm install
+        run: npm ci # O comando npm ci é usado para instalar as dependências do projeto de forma limpa, removendo a pasta node_modules e instalando novamente
+
+      - name: Run Lint # Roda o lint no código do frontend
+        run: npm run lint
 
       - name: Build React project # Faz o build no projeto frontend react
-        working-directory: ./src/web
         run: npm run build
