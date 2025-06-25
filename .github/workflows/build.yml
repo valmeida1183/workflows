@@ -157,6 +157,9 @@ jobs:
     needs: versioning # Define que esse job depende do job de versionamento, ou seja, só será executado após o término do job de versionamento
     runs-on: ubuntu-latest
     name: Dependency Check
+    permissions: # Permissões necessárias para o job, nesse caso, para ler o repositório
+      contents: read
+      pull-requests: write # Permissão para escrever em pull requests, necessária para a action de revisão de dependências
     steps:
       - name: Checkout code # Serve para fazer o checkout do código do projeto para o runner (máquina que roda o pipeline)
         uses: actions/checkout@v4
