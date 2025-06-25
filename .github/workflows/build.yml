@@ -9,6 +9,10 @@ on:
       - main
   workflow_dispatch: # permite roda o workflow manualmente
 
+concurrency: # Garante que apenas uma execução do workflow ocorra por vez, evitando conflitos
+  group: ${{ github.workflow }}-${{ github.ref }} # Agrupa as execuções por workflow e branch
+  cancel-in-progress: true # Cancela execuções anteriores em andamento se uma nova for iniciada
+
 jobs:
   versioning: # vamos versionar as integrações com o uso de uma action existente: https://github.com/marketplace/actions/git-version
     runs-on: ubuntu-latest
@@ -75,6 +79,27 @@ jobs:
           name: dotnet-test-results
           path: TestResults
 
+  backend-lint:
+    needs: versioning # Define que esse job depende do job de versionamento, ou seja, só será executado após o término do job de versionamento
+    runs-on: ubuntu-latest
+    name: Backend Lint
+
+    steps:
+      - name: Checkout code # Serve para fazer o checkout do código do projeto para o runner (máquina que roda o pipeline)
+        uses: actions/checkout@v4
+        with: # super-linter precisa do histórico completo para funcionar corretamente
+          fetch-depth: 0
+
+      - uses: github/super-linter@v6 # Usa o super-linter para rodar o lint no código do backend
+        env:
+          DEFAULT_BRANCH: main # Define a branch padrão para o linter, nesse caso, a branch main
+          VALIDATE_ALL_CODEBASE: 'false' # Desabilita a validação de todo o código, para rodar apenas no código modificado
+          VALIDATE_YAML: 'true' # Habilita a validação de arquivos YAML
+          VALIDATE_CSHARP: 'true' # Habilita a validação de arquivos C#
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Token de acesso ao repositório, já vem configurado no GitHub Actions
+        with:
+          run-linter: dotnet # Especifica que queremos rodar o linter para .NET
+
   frontend-build-and-test:
     needs: versioning # Define que esse job depende do job de versionamento, ou seja, só será executado após o término do job de versionamento
     runs-on: ubuntu-latest
@@ -102,3 +127,28 @@ jobs:
 
       - name: Build React project # Faz o build no projeto frontend react
         run: npm run build
+
+  frontend-lint:
+    needs: versioning # Define que esse job depende do job de versionamento, ou seja, só será executado após o término do job de versionamento
+    runs-on: ubuntu-latest
+    name: Frontend Lint
+    defaults:
+      run:
+        working-directory: ./src/web # Define o diretório de trabalho padrão para as etapas desse job, assim não é necessário especificar o diretório em cada etapa
+
+    steps:
+      - name: Checkout code # Serve para fazer o checkout do código do projeto para o runner (máquina que roda o pipeline)
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js # Instala o Node.js no runner
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: ./src/web
+
+      - name: Install Npm packages # Instala os pacotes npm no frontend
+        run: npm ci # O comando npm ci é usado para instalar as dependências do projeto de forma limpa, removendo a pasta node_modules e instalando novamente
+
+      - name: Run Lint # Roda o lint no código do frontend
+        run: npm run lint
