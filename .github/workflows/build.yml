@@ -176,28 +176,28 @@ jobs:
       packages: read # Permissão para ler pacotes, necessária para a action de revisão de segurança
       actions: read # Permissão para ler ações, necessária para a action de revisão de segurança
       contents: read # Permissão para ler o conteúdo do repositório, necessária para a action de revisão de segurança
+    strategy: # Define uma estratégia de matriz para rodar o CodeQL em diferentes linguagens
+      matrix:
+        include:
+          - name: Backend # Nome do job para o backend
+            language: csharp # Linguagem C# para o backend
+            build-mode: autobild # Modo de build autobuild, usado para projetos .NET
+          - name: Frontend # Nome do job para o frontend
+            language: javascript # Linguagem JavaScript para o frontend
+            build-mode: none # Modo de build none, usado para projetos JavaScript e TypeScript
     steps:
       - name: Checkout code # Serve para fazer o checkout do código do projeto para o runner (máquina que roda o pipeline)
         uses: actions/checkout@v4
 
-      - name: Initialize CodeQL - Backend # Inicializa o CodeQL para análise de segurança do código
+      - name: Initialize CodeQL - ${{ matrix.name }} # Inicializa o CodeQL para análise de segurança do código
+        # A variável matrix.name é usada para diferenciar os jobs de backend e frontend
         uses: github/codeql-action/init@v3
         with:
-          languages: 'csharp' # Especifica que queremos analisar código C#
-          build-mode: autobuild # Define o modo de build como autobuild, que é usado para projetos .NET
+          languages: ${{ matrix.language }} # Especifica a linguagem a ser analisada, que pode ser C# ou JavaScript
+          build-mode: ${{ matrix.build-mode }} # Especifica o modo de build, que pode ser autobuild para C# ou none para JavaScript
 
-      - name: Run CodeQL Analysis - Backend # Roda a análise de segurança do código usando o CodeQL
+      - name: Run CodeQL Analysis - ${{ matrix.name }} # Roda a análise de segurança do código usando o CodeQL
         uses: github/codeql-action/analyze@v3
         with:
-          category: '/language:csharp' # Define a categoria da análise como segurança
-
-      - name: Initialize CodeQL - Frontend # Inicializa o CodeQL para análise de segurança do código
-        uses: github/codeql-action/init@v3
-        with:
-          languages: 'javascript,typescript' # Especifica que queremos analisar código JavaScript e TypeScript
-
-      - name: Run CodeQL Analysis - Frontend # Roda a análise de segurança do código usando o CodeQL
-        uses: github/codeql-action/analyze@v3
-        with:
-          category: '/language:javascript,typescript' # Define a categoria da análise como segurança para JavaScript e TypeScript
+          category: '/language:${{ matrix.language }}' # Define a categoria da análise como segurança para C# e JavaScript
 
