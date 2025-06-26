@@ -166,3 +166,38 @@ jobs:
 
       - name: Dependency Review # Roda a action de revisão de dependências
         uses: actions/dependency-review-action@v4
+
+  code-security-check:
+    needs: versioning # Define que esse job depende do job de versionamento, ou seja, só será executado após o término do job de versionamento
+    runs-on: ubuntu-latest
+    name: Code Security Check
+    permissions: # Permissões necessárias para o job, nesse caso, para ler o repositório
+      security-events: write # Permissão para escrever eventos de segurança, necessária para a action de revisão de segurança
+      packages: read # Permissão para ler pacotes, necessária para a action de revisão de segurança
+      actions: read # Permissão para ler ações, necessária para a action de revisão de segurança
+      contents: read # Permissão para ler o conteúdo do repositório, necessária para a action de revisão de segurança
+    strategy: # Define uma estratégia de matriz para rodar o CodeQL em diferentes linguagens
+      matrix:
+        include:
+          - name: Backend # Nome do job para o backend
+            language: csharp # Linguagem C# para o backend
+            build-mode: autobuild # Modo de build autobuild, usado para projetos .NET
+          - name: Frontend # Nome do job para o frontend
+            language: javascript # Linguagem JavaScript para o frontend
+            build-mode: none # Modo de build none, usado para projetos JavaScript e TypeScript
+    steps:
+      - name: Checkout code # Serve para fazer o checkout do código do projeto para o runner (máquina que roda o pipeline)
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL - ${{ matrix.name }} # Inicializa o CodeQL para análise de segurança do código
+        # A variável matrix.name é usada para diferenciar os jobs de backend e frontend
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }} # Especifica a linguagem a ser analisada, que pode ser C# ou JavaScript
+          build-mode: ${{ matrix.build-mode }} # Especifica o modo de build, que pode ser autobuild para C# ou none para JavaScript
+
+      - name: Run CodeQL Analysis - ${{ matrix.name }} # Roda a análise de segurança do código usando o CodeQL
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: '/language:${{ matrix.language }}' # Define a categoria da análise como segurança para C# e JavaScript
+
