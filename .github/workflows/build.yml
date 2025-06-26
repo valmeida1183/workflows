@@ -195,7 +195,7 @@ jobs:
         with:
           languages: 'javascript,typescript' # Especifica que queremos analisar código JavaScript e TypeScript
 
-      - name: Run CodeQL Analysis - Backend # Roda a análise de segurança do código usando o CodeQL
+      - name: Run CodeQL Analysis - Frontend # Roda a análise de segurança do código usando o CodeQL
         uses: github/codeql-action/analyze@v3
         with:
           category: '/language:javascript,typescript' # Define a categoria da análise como segurança para JavaScript e TypeScript
