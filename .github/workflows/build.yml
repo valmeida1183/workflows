@@ -184,6 +184,7 @@ jobs:
         uses: github/codeql-action/init@v3
         with:
           languages: 'csharp' # Especifica que queremos analisar código C#
+          build-mode: autobuild # Define o modo de build como autobuild, que é usado para projetos .NET
 
       - name: Run CodeQL Analysis - Backend # Roda a análise de segurança do código usando o CodeQL
         uses: github/codeql-action/analyze@v3
