@@ -152,3 +152,17 @@ jobs:
 
       - name: Run Lint # Roda o lint no código do frontend
         run: npm run lint
+
+  dependency-check:
+    needs: versioning # Define que esse job depende do job de versionamento, ou seja, só será executado após o término do job de versionamento
+    runs-on: ubuntu-latest
+    name: Dependency Check
+    permissions: # Permissões necessárias para o job, nesse caso, para ler o repositório
+      contents: read
+      pull-requests: write # Permissão para escrever em pull requests, necessária para a action de revisão de dependências
+    steps:
+      - name: Checkout code # Serve para fazer o checkout do código do projeto para o runner (máquina que roda o pipeline)
+        uses: actions/checkout@v4
+
+      - name: Dependency Review # Roda a action de revisão de dependências
+        uses: actions/dependency-review-action@v4
