@@ -181,7 +181,7 @@ jobs:
         include:
           - name: Backend # Nome do job para o backend
             language: csharp # Linguagem C# para o backend
-            build-mode: autobild # Modo de build autobuild, usado para projetos .NET
+            build-mode: autobuild # Modo de build autobuild, usado para projetos .NET
           - name: Frontend # Nome do job para o frontend
             language: javascript # Linguagem JavaScript para o frontend
             build-mode: none # Modo de build none, usado para projetos JavaScript e TypeScript
