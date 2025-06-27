@@ -82,7 +82,7 @@ jobs:
           path: TestResults
 
       - name: Publish .NET # Publica o projeto .NET
-        run: dotnet publish ./src/api/Todo.Api.sln --no-build --no-restore --configuration Release --output ./publish
+        run: dotnet publish ./src/api/Todo.Api.csproj --no-restore --no-build --configuration Release --output ./publish
 
       - name: Upload published files # Faz o upload dos arquivos publicados para serem usados em outros jobs
         uses: actions/upload-artifact@v4
