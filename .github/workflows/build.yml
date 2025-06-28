@@ -17,6 +17,8 @@ jobs:
   versioning: # vamos versionar as integrações com o uso de uma action existente: https://github.com/marketplace/actions/git-version
     runs-on: ubuntu-latest
     name: Versioning
+    outputs:
+      version: ${{ steps.git-version.outputs.version }} # Define uma saída chamada "version" que será usada em outros jobs, nesse caso, a versão gerada pela action git-version
     permissions: # Permissões necessárias para o job, nesse caso, para escrever no repositório
       contents: write
 
@@ -79,6 +81,15 @@ jobs:
           name: dotnet-test-results
           path: TestResults
 
+      - name: Publish .NET # Publica o projeto .NET
+        run: dotnet publish ./src/api/Todo.Api.csproj --no-restore --no-build --configuration Release --output ./publish
+
+      - name: Upload published files # Faz o upload dos arquivos publicados para serem usados em outros jobs
+        uses: actions/upload-artifact@v4
+        with:
+          name: api # Nome do artefato a ser publicado, que contém os arquivos publicados do backend
+          path: ./publish # Caminho para os arquivos publicados, que serão usados no job de build da imagem Docker
+
   backend-lint:
     needs: versioning # Define que esse job depende do job de versionamento, ou seja, só será executado após o término do job de versionamento
     runs-on: ubuntu-latest
@@ -127,6 +138,11 @@ jobs:
 
       - name: Build React project # Faz o build no projeto frontend react
         run: npm run build
+
+      - uses: actions/upload-artifact@v4 # Faz o upload dos arquivos publicados para serem usados em outros jobs
+        with:
+          name: web # Nome do artefato a ser publicado, que contém os arquivos publicados do frontend
+          path: ./src/web/dist # Caminho para os arquivos publicados, que serão usados no job de build da imagem Docker
 
   frontend-lint:
     needs: versioning # Define que esse job depende do job de versionamento, ou seja, só será executado após o término do job de versionamento
@@ -201,3 +217,34 @@ jobs:
         with:
           category: '/language:${{ matrix.language }}' # Define a categoria da análise como segurança para C# e JavaScript
 
+  build-docker-image:
+    needs: [versioning, backend-build-and-test, frontend-build-and-test] # Define que esse job depende dos jobs de versionamento, build e teste do backend e frontend, ou seja, só será executado após o término desses jobs
+    runs-on: ubuntu-latest
+    name: Build Docker Image
+    env:
+      VERSION: ${{ needs.versioning.outputs.version }} # Usa a versão gerada no job de versionamento como variável de ambiente para ser usada no Dockerfile
+    steps:
+      - name: Checkout code # Serve para fazer o checkout do código do projeto para o runner (máquina que roda o pipeline)
+        uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4 # Faz o download dos artefatos publicados nos jobs de build do backend e frontend
+        with:
+          path: app # Caminho onde os artefatos serão baixados, nesse caso, a pasta app
+          merge-multiple: false # Não mescla múltiplos artefatos, pois estamos baixando apenas um artefato
+
+      - name: Build Docker image # Faz o build da imagem Docker
+        run: docker build -t ${{ vars.DOCKERHUB_REPOSITORY }}/todo-app:${{ env.VERSION }} . # Usa a variável de ambiente VERSION para taguear a imagem com a versão gerada no job de versionamento
+
+      - name: Tag Docker image Latest # Tagueia a imagem Docker como latest, se estiver na branch main
+        run: docker tag ${{ vars.DOCKERHUB_REPOSITORY }}/todo-app:${{ env.VERSION }} ${{ vars.DOCKERHUB_REPOSITORY }}/todo-app:latest # Tagueia a imagem com a tag latest
+        if: github.ref == 'refs/heads/main'
+
+      - name: Docker Login # Faz o login no Docker Hub para poder fazer o push da imagem
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }} # Nome de usuário do Docker Hub, armazenado como um segredo no repositório
+          password: ${{ secrets.DOCKER_PASSWORD }} # Senha do Docker Hub, armazenada como um segredo no repositório
+
+      - name: Docker Push # Faz o push da imagem Docker para o Docker Hub
+        run: |
+          docker push --all-tags ${{ vars.DOCKERHUB_REPOSITORY }}/todo-app
