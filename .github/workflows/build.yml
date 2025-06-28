@@ -87,7 +87,7 @@ jobs:
       - name: Upload published files # Faz o upload dos arquivos publicados para serem usados em outros jobs
         uses: actions/upload-artifact@v4
         with:
-          name: app # Nome do artefato a ser publicado, que contém os arquivos publicados do backend
+          name: api # Nome do artefato a ser publicado, que contém os arquivos publicados do backend
           path: ./publish # Caminho para os arquivos publicados, que serão usados no job de build da imagem Docker
 
   backend-lint:
@@ -141,8 +141,8 @@ jobs:
 
       - uses: actions/upload-artifact@v4 # Faz o upload dos arquivos publicados para serem usados em outros jobs
         with:
-          name: app # Nome do artefato a ser publicado, que contém os arquivos publicados do frontend
-          path: /src/web/dist # Caminho para os arquivos publicados, que serão usados no job de build da imagem Docker
+          name: web # Nome do artefato a ser publicado, que contém os arquivos publicados do frontend
+          path: ./src/web/dist # Caminho para os arquivos publicados, que serão usados no job de build da imagem Docker
 
   frontend-lint:
     needs: versioning # Define que esse job depende do job de versionamento, ou seja, só será executado após o término do job de versionamento
