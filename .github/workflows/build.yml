@@ -229,7 +229,7 @@ jobs:
 
       - uses: actions/download-artifact@v4 # Faz o download dos artefatos publicados nos jobs de build do backend e frontend
         with:
-          name: app # Nome do artefato a ser baixado, que contém os arquivos publicados do backend
+          path: app # Caminho onde os artefatos serão baixados, nesse caso, a pasta app
           merge-multiple: false # Não mescla múltiplos artefatos, pois estamos baixando apenas um artefato
 
       - name: Build Docker image # Faz o build da imagem Docker
