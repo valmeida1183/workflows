@@ -48,6 +48,16 @@ jobs:
           echo "::notice::Repository tagged with version ${{ steps.git-version.outputs.version }}"
         if: github.ref == 'refs/heads/main' # Garante que a tag só será criada se o workflow estiver rodando na branch main
 
+      - name: Create file with version # Cria um arquivo com a versão gerada para ser usado em outros workflows (deploy, por exemplo)
+        run: |
+          echo "${{ steps.git-version.outputs.version }}" > version.txt # Cria um arquivo version.txt com a versão gerada
+        if: github.ref == 'refs/heads/main' # Garante que o arquivo só será criado se o workflow estiver rodando na branch main
+
+      - uses: actions/upload-artifact@v4 # Faz o upload do arquivo version.txt para ser usado em outros jobs
+        with:
+          name: version # Nome do artefato a ser publicado, que contém o arquivo com a versão
+          path: version.txt # Caminho para o arquivo com a versão, que será usado no job de build da imagem Docker
+
   backend-build-and-test:
     needs: versioning # Define que esse job depende do job de versionamento, ou seja, só será executado após o término do job de versionamento
     runs-on: ubuntu-latest
@@ -83,6 +93,12 @@ jobs:
 
       - name: Publish .NET # Publica o projeto .NET
         run: dotnet publish ./src/api/Todo.Api.csproj --no-restore --no-build --configuration Release --output ./publish
+
+      - name: Tag published version
+        uses: restackio/update-json-file-action@2.1
+        with:
+          file: ./publish/appsettings.json # Caminho para o arquivo JSON que será atualizado
+          fields: '{"MY_APP_VERSION": "${{ needs.versioning.outputs.version }}"}' # Campos a serem atualizados no arquivo JSON, nesse caso, o campo MY_APP_VERSION será atualizado com a versão gerada no job de versionamento
 
       - name: Upload published files # Faz o upload dos arquivos publicados para serem usados em outros jobs
         uses: actions/upload-artifact@v4
