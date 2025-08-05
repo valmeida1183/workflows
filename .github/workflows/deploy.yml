@@ -40,10 +40,13 @@ jobs:
     name: Deploy to Google Cloud
     runs-on: ubuntu-latest
     needs: versioning # Define que esse job depende do job de versionamento, ou seja, só será executado após o término do job de versionamento
-    environment: staging # Define o ambiente de staging para o job
     permissions: # Define as permissões necessárias para o job
       contents: read # Permite ler o conteúdo do repositório
       id-token: write # Permite escrever o token de ID para autenticação e utilização de serviços externos no caso o Google Cloud
+    strategy: # Define uma estratégia de matriz para rodar o CodeQL em diferentes linguagens
+      matrix:
+        environment: ['Staging', 'Production'] # Define os ambientes onde o deploy será feito, que são Staging e Production
+    environment: ${{ matrix.environment }} # Define o ambiente de execução do job, que pode ser Staging ou Production
 
     steps:
       - uses: google-github-actions/auth@v2 # Ação para autenticação no Google Cloud
