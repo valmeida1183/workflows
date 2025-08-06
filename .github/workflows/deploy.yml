@@ -1,0 +1,68 @@
+name: Deploy Project
+
+on:
+  workflow_run:
+    workflows: ['Build Project'] # Inicia quando o workflow "Build Project" é concluído.
+    types:
+      - completed
+
+env:
+  DOCKER_IMAGE_REGISTRY: '${{ vars.DOCKER_CONTAINER_REGISTRY }}/${{vars.DOCKERHUB_REPOSITORY}}/todo-app' # Define o registro da imagem Docker
+
+jobs:
+  versioning:
+    runs-on: ubuntu-latest # Define o ambiente de execução do job
+    outputs:
+      version: ${{ steps.get-version.outputs.version }} # Define a saída do job como a versão definida no step set-version
+      docker-container-registry: ${{ steps.docker-image-registry.outputs.docker-container-registry }} # Define a saída do job como o registro da imagem Docker
+
+    steps:
+      - uses: actions/download-artifact@v4 # Faz o download do artefato version.txt criado no job de build
+        with:
+          name: version # Nome do artefato a ser baixado, que contém o arquivo com a versão criada no workflow de build
+          path: ./ # Caminho onde o artefato será baixado, que é a raiz do repositório
+          github-token: ${{ secrets.GITHUB_TOKEN }} # Token do GitHub para autenticação
+          run-id: ${{ github.event.workflow_run.id }} # ID do workflow que disparou o evento, garantindo que o artefato correto seja baixado
+
+      - name: Get version from file # Lê o conteúdo do arquivo version.txt e define como saída do job
+        id: get-version # Define um ID para o step, que pode ser usado para referenciar a saída
+        run: |
+          VERSION=$(cat ./version.txt) # Lê o conteúdo do arquivo version.txt e armazena na variável VERSION
+          echo "::notice:: $VERSION" # Exibe uma mensagem de aviso com a versão obtida
+          echo "::set-output name=version::$VERSION" >> "$GITHUB_OUTPUT" # Define a saída do step com o valor da variável VERSION
+
+      - name: Generate docker image registry # Gera o registro da imagem Docker com a versão obtida
+        id: docker-image-registry # Define um ID para o step, que pode ser usado para referenciar a saída
+        run: |
+          echo "::set-output name=docker-container-registry::${{ env.DOCKER_IMAGE_REGISTRY }}:${{ steps.get-version.outputs.version }}"  >> "GITHUB_OUTPUT" # Define a saída do step com o registro da imagem Docker, que inclui a versão obtida
+
+  deploy-to-goolgle-cloud:
+    name: Deploy to Google Cloud
+    runs-on: ubuntu-latest
+    needs: versioning # Define que esse job depende do job de versionamento, ou seja, só será executado após o término do job de versionamento
+    permissions: # Define as permissões necessárias para o job
+      contents: read # Permite ler o conteúdo do repositório
+      id-token: write # Permite escrever o token de ID para autenticação e utilização de serviços externos no caso o Google Cloud
+    strategy: # Define uma estratégia de matriz para rodar o CodeQL em diferentes linguagens
+      matrix:
+        environment: ['Staging', 'Production'] # Define os ambientes onde o deploy será feito, que são Staging e Production
+    environment: ${{ matrix.environment }} # Define o ambiente de execução do job, que pode ser Staging ou Production
+
+    steps:
+      - uses: google-github-actions/auth@v2 # Ação para autenticação no Google Cloud
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }} # Credenciais do Google Cloud armazenadas como segredo
+          project_id: ${{ vars.GCP_PROJECT_ID }} # ID do projeto do Google Cloud armazenado como variável
+
+      - uses: google-github-actions/deploy-cloudrun@v2 # Ação para implantar no Cloud Run
+        id: deploy-to-cloud-run # Define um ID para o step, que pode ser usado para referenciar a saída
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }} # ID do projeto do Google Cloud
+          service: ${{ vars.GCP_RUN_SERVICE }} # Nome do serviço do Cloud
+          image: ${{ needs.versioning.outputs.docker-container-registry }} # Imagem Docker a ser implantada, que é o registro da imagem Docker com a versão obtida no job de versionamento
+          region: ${{ vars.GCP_RUN_REGION }} # Região do Google Cloud onde o serviço será implantado
+
+      - name: 'Test the deployment' # Testa a implantação do serviço no Cloud Run
+        run: |-
+          echo "::notice:: ${{ steps.deploy-to-cloud-run.outputs.url }}/index.html" # Exibe a URL do serviço implantado
+          curl -I --fail "${{ steps.deploy-to-cloud-run.outputs.url }}/index.html" # Faz uma requisição HTTP para a URL do serviço implantado e verifica se a resposta é bem-sucedida (status 200)
